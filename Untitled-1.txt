@@ -1,0 +1,126 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const TaskApp());
+}
+
+class TaskApp extends StatelessWidget {
+  const TaskApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'TaskFlow',
+      home: const TaskHomePage(),
+    );
+  }
+}
+
+class TaskHomePage extends StatefulWidget {
+  const TaskHomePage({super.key});
+
+  @override
+  State<TaskHomePage> createState() => _TaskHomePageState();
+}
+
+class _TaskHomePageState extends State<TaskHomePage> {
+  final TextEditingController _taskController = TextEditingController();
+
+  // Lista de tareas (estructura de datos)
+  List<Map<String, dynamic>> tasks = [];
+
+  // Función para agregar tarea
+  void addTask() {
+    String text = _taskController.text.trim();
+
+    if (text.isEmpty) {
+      return; // Evita tareas vacías
+    }
+
+    setState(() {
+      tasks.add({
+        'title': text,
+        'completed': false,
+      });
+    });
+
+    _taskController.clear();
+  }
+
+  // Marcar tarea como completada
+  void toggleTask(int index) {
+    setState(() {
+      tasks[index]['completed'] = !tasks[index]['completed'];
+    });
+  }
+
+  // Eliminar tarea
+  void deleteTask(int index) {
+    setState(() {
+      tasks.removeAt(index);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Gestor de Tareas - TaskFlow'),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            // Campo de texto
+            TextField(
+              controller: _taskController,
+              decoration: const InputDecoration(
+                labelText: 'Ingrese una tarea',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // Botón agregar
+            ElevatedButton(
+              onPressed: addTask,
+              child: const Text('Agregar tarea'),
+            ),
+            const SizedBox(height: 20),
+
+            // Lista de tareas
+            Expanded(
+              child: ListView.builder(
+                itemCount: tasks.length,
+                itemBuilder: (context, index) {
+                  return Card(
+                    child: ListTile(
+                      leading: Checkbox(
+                        value: tasks[index]['completed'],
+                        onChanged: (_) => toggleTask(index),
+                      ),
+                      title: Text(
+                        tasks[index]['title'],
+                        style: TextStyle(
+                          decoration: tasks[index]['completed']
+                              ? TextDecoration.lineThrough
+                              : TextDecoration.none,
+                        ),
+                      ),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => deleteTask(index),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
